@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Functions to get dataset pipeline for the image cls tasks."""
+import jax
 import tensorflow.compat.v1 as tf
 import tensorflow_datasets as tfds
 
@@ -48,8 +49,13 @@ def get_mnist_datasets(n_devices, batch_size=256, normalize=False):
     val_dataset = val_dataset.batch(batch_size, drop_remainder=True)
     test_dataset = test_dataset.batch(batch_size, drop_remainder=True)
 
+    options = tf.data.Options()
+    options.deterministic = True
+    train_dataset = train_dataset.with_options(options)
     train_dataset = train_dataset.shuffle(
-        buffer_size=256, reshuffle_each_iteration=True
+        buffer_size=256,
+        reshuffle_each_iteration=True,
+        seed=jax.process_index(),
     )
 
     return train_dataset, val_dataset, test_dataset, 10, 256, (batch_size, 28, 28, 1)
@@ -85,8 +91,13 @@ def get_cifar10_datasets(n_devices, batch_size=256, normalize=False):
     val_dataset = val_dataset.batch(batch_size, drop_remainder=True)
     test_dataset = test_dataset.batch(batch_size, drop_remainder=True)
 
+    options = tf.data.Options()
+    options.deterministic = True
+    train_dataset = train_dataset.with_options(options)
     train_dataset = train_dataset.shuffle(
-        buffer_size=256, reshuffle_each_iteration=True
+        buffer_size=256,
+        reshuffle_each_iteration=True,
+        seed=jax.process_index(),
     )
 
     return train_dataset, val_dataset, test_dataset, 10, 256, (batch_size, 32, 32, 1)
@@ -132,8 +143,13 @@ def get_pathfinder_orig_datasets(n_devices, batch_size=256, normalize=False):
     val_dataset = val_dataset.batch(batch_size, drop_remainder=True)
     test_dataset = test_dataset.batch(batch_size, drop_remainder=True)
 
+    options = tf.data.Options()
+    options.deterministic = True
+    train_dataset = train_dataset.with_options(options)
     train_dataset = train_dataset.shuffle(
-        buffer_size=256, reshuffle_each_iteration=True
+        buffer_size=256,
+        reshuffle_each_iteration=True,
+        seed=jax.process_index(),
     )
 
     return train_dataset, val_dataset, test_dataset, 2, 256, (batch_size, 300, 300, 1)
@@ -199,8 +215,13 @@ def get_pathfinder_base_datasets(
     val_dataset = val_dataset.batch(batch_size, drop_remainder=True)
     test_dataset = test_dataset.batch(batch_size, drop_remainder=True)
 
+    options = tf.data.Options()
+    options.deterministic = True
+    train_dataset = train_dataset.with_options(options)
     train_dataset = train_dataset.shuffle(
-        buffer_size=256 * 8, reshuffle_each_iteration=True
+        buffer_size=256 * 8,
+        reshuffle_each_iteration=True,
+        seed=jax.process_index(),
     )
 
     return train_dataset, val_dataset, test_dataset, 2, 256, inputs_shape

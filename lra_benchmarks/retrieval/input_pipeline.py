@@ -14,6 +14,7 @@
 """Input pipeline for the imdb dataset."""
 import os
 
+import jax
 import tensorflow.compat.v1 as tf
 import tensorflow_datasets as tfds
 from absl import logging
@@ -165,10 +166,19 @@ def get_matching_datasets(
     val_dataset = val_dataset.map(tokenize, num_parallel_calls=AUTOTUNE)
     test_dataset = test_dataset.map(tokenize, num_parallel_calls=AUTOTUNE)
 
-    max_shape = {"inputs1": [max_length], "inputs2": [max_length], "targets": []}
+    options = tf.data.Options()
+    options.deterministic = True
+    train_dataset = train_dataset.with_options(options)
     train_dataset = train_dataset.shuffle(
-        buffer_size=SHUFFLE_BUFFER_SIZE, reshuffle_each_iteration=True
-    ).padded_batch(batch_size, padded_shapes=max_shape, drop_remainder=True)
+        buffer_size=SHUFFLE_BUFFER_SIZE,
+        reshuffle_each_iteration=True,
+        seed=jax.process_index(),
+    )
+
+    max_shape = {"inputs1": [max_length], "inputs2": [max_length], "targets": []}
+    train_dataset = train_dataset.padded_batch(
+        batch_size, padded_shapes=max_shape, drop_remainder=True
+    )
     val_dataset = val_dataset.padded_batch(
         batch_size, padded_shapes=max_shape, drop_remainder=True
     )
