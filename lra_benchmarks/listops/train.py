@@ -203,7 +203,7 @@ def main(argv):
     # the main pmap'd training update for performance.
     dropout_rngs = random.split(rng, jax.local_device_count())
 
-    model, _ = train_utils.get_model(
+    model = train_utils.get_model(
         model_type, create_model, model_kwargs, init_rng, input_shape
     )
 
