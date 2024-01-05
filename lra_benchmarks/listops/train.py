@@ -29,7 +29,6 @@ from flax import jax_utils
 from flax import optim
 from flax.deprecated import nn
 from flax.metrics import tensorboard
-from flax.training import checkpoints
 from flax.training import common_utils
 from jax import random
 from ml_collections import config_flags
