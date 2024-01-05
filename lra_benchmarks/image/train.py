@@ -432,7 +432,7 @@ def main(argv):
 
     logging.info("Starting testing")
     logging.info("====================")
-    with tf.io.gfile.GFile(os.path.join(FLAGS.model_dir, "results.json"), "w") as f:
+    with tf.io.gfile.GFile(os.path.join(FLAGS.model_dir, "results.json"), "w+") as f:
         test_summary = test(
             optimizer,
             state,

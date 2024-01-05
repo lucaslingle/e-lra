@@ -312,7 +312,7 @@ def main(argv):
 
     logging.info("Starting testing")
     logging.info("====================")
-    with tf.io.gfile.GFile(os.path.join(FLAGS.model_dir, "results.json"), "w") as f:
+    with tf.io.gfile.GFile(os.path.join(FLAGS.model_dir, "results.json"), "w+") as f:
         test_summary = run_eval(test_ds)
         json.dump(jax.tree_map(lambda x: x.tolist(), test_summary), f)
 

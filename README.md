@@ -1,15 +1,13 @@
 # E/LRA
 
-A streamlined fork of [LRA](https://github.com/google-research/long-range-arena/) with
+A streamlined variant of [LRA](https://github.com/google-research/long-range-arena/) with
 
 - [pinned dependencies](https://github.com/lucaslingle/e-lra/blob/main/setup.py#L19-L48), avoiding installation difficulties; 
 - [helpful examples](https://github.com/lucaslingle/e-lra/tree/main?tab=readme-ov-file#usage), improving productivity;
 - [automatic dataset setup](https://github.com/lucaslingle/e-lra/blob/main/prep_data.sh), avoiding manual wrangling;
 - [complete factory function](https://github.com/lucaslingle/e-lra/blob/main/lra_benchmarks/utils/train_utils.py#L35-L128), supporting all the models implemented by LRA;
-- [defined data path variables](https://github.com/lucaslingle/e-lra/blob/main/lra_benchmarks/image/input_pipeline.py#L21), avoiding crashing scripts;
+- [well-defined variables](https://github.com/lucaslingle/e-lra/blob/main/lra_benchmarks/image/input_pipeline.py#L21), avoiding crashing scripts;
 - [deterministic shuffling](https://github.com/lucaslingle/e-lra/blob/main/lra_benchmarks/image/input_pipeline.py#L52-59), aiding reproducibility. 
-
-The changes are non-invasive to the original source code, but significantly simplify usage of the LRA task suite. 
 
 ## Installation
 
@@ -118,14 +116,12 @@ The default config for vanilla transformer does not work with Path-X on TPU v3 d
 
 ## Replicating the Paper
 
-Our results training vanilla transformers on a TPU v3-8 are provided below.  
-Each task uses accuracy as the evaluation metric, so higher is better. 
+Task accuracies for vanilla transformers on TPU v3-8 are provided below.
 
-| Codebase | ListOps | Text      | Retrieval | Image | Path  | 
-|----------| --------| --------- | --------- |-------|-------| 
-| Original | 36.37   | 52.98     | 53.39     | 41.46 | 66.63 | 
-| Ours     |         |           |           |       |       |
-
+|       | ListOps | Text     | Retrieval | Image | Path  | 
+|-------|---------|----------|-----------|-------|-------| 
+| Paper | 36.37   | 64.27    | 57.46     | 42.44 | 71.40 | 
+| Ours  | 36.63   |          |           |       |       |
 
 ### Acknowledgements
 
