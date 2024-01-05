@@ -206,13 +206,9 @@ def main(argv):
     model = train_utils.get_model(
         model_type, create_model, model_kwargs, init_rng, input_shape
     )
-
     optimizer = create_optimizer(model, learning_rate)
     del model  # Don't keep a copy of the initial model.
-
     start_step = 0
-    if FLAGS.config.restore_checkpoints:
-        raise NotImplementedError
 
     # Replicate optimizer.
     optimizer = jax_utils.replicate(optimizer)

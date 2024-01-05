@@ -29,9 +29,6 @@ def get_config():
     config.sampling_temperature = 0.6
     config.sampling_top_k = 20
     config.max_predict_token_length = 50
-    config.save_checkpoints = True
-    config.restore_checkpoints = True
-    config.checkpoint_freq = 10000
     config.random_seed = 0
     config.prompt = ""
     config.factors = "constant * linear_warmup * rsqrt_decay"
