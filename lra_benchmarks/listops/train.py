@@ -204,18 +204,16 @@ def main(argv):
     # the main pmap'd training update for performance.
     dropout_rngs = random.split(rng, jax.local_device_count())
 
-    model = train_utils.get_model(
+    model, _ = train_utils.get_model(
         model_type, create_model, model_kwargs, init_rng, input_shape
     )
 
     optimizer = create_optimizer(model, learning_rate)
     del model  # Don't keep a copy of the initial model.
+
     start_step = 0
-    if config.restore_checkpoints or FLAGS.test_only:
-        # Restore unreplicated optimizer + model state from last checkpoint.
-        optimizer = checkpoints.restore_checkpoint(FLAGS.model_dir, optimizer)
-        # Grab last step.
-        start_step = int(optimizer.state.step)
+    if FLAGS.config.restore_checkpoints:
+        raise NotImplementedError
 
     # Replicate optimizer.
     optimizer = jax_utils.replicate(optimizer)
@@ -258,12 +256,6 @@ def main(argv):
         )
         return eval_summary_
 
-    if FLAGS.test_only:
-        with tf.io.gfile.GFile(os.path.join(FLAGS.model_dir, "results.json"), "w") as f:
-            test_summary = run_eval(test_ds, optimizer)
-            json.dump(jax.tree_map(lambda x: x.tolist(), test_summary), f)
-        return
-
     metrics_all = []
     tick = time.time()
     for step, batch in zip(range(start_step, num_train_steps), train_iter):
@@ -275,16 +267,6 @@ def main(argv):
         )
         metrics_all.append(metrics)
         logging.info("train in step: %d", step)
-
-        # Save a Checkpoint
-        if (
-            step % config.checkpoint_freq == 0 and step > 0
-        ) or step == num_train_steps - 1:
-            if jax.process_index() == 0 and config.save_checkpoints:
-                # Save unreplicated optimizer + model state.
-                checkpoints.save_checkpoint(
-                    FLAGS.model_dir, jax_utils.unreplicate(optimizer), step
-                )
 
         # Periodic metric handling.
         if step % eval_freq == 0 and step > 0:
@@ -322,6 +304,10 @@ def main(argv):
                 for key, val in eval_summary.items():
                     summary_writer.scalar(f"eval_{key}", val, step)
                 summary_writer.flush()
+
+    with tf.io.gfile.GFile(os.path.join(FLAGS.model_dir, "results.json"), "w") as f:
+        test_summary = run_eval(test_ds, optimizer)
+        json.dump(jax.tree_map(lambda x: x.tolist(), test_summary), f)
 
 
 if __name__ == "__main__":

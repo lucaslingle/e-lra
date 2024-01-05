@@ -172,3 +172,17 @@ python3 lra_benchmarks/image/train.py \
 
 #### Note
 The default config for vanilla transformer does not work with Path-X on TPU v3 due to OOM and large batch size. No configs were provided for Path-X for any other model.
+
+## Replicating the Results
+
+Our results training vanilla transformers on a TPU v3-8 are provided below.
+
+| Codebase | ListOps | Text      | Retrieval | Image | Path  | 
+|----------| --------| --------- | --------- |-------|-------| 
+| Original | 36.37   | 52.98     | 53.39     | 41.46 | 66.63 | 
+| Ours     | 
+
+
+### Acknowledgements
+
+Our experiments were supported with Cloud TPUs from Google's TPU Research Cloud (TRC).
