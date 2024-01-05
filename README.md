@@ -1,6 +1,6 @@
 # E/LRA
 
-A slightly opinionated fork of [LRA](https://github.com/google-research/long-range-arena/) with
+A streamlined fork of [LRA](https://github.com/google-research/long-range-arena/) with
 
 - [pinned dependencies](https://github.com/lucaslingle/e-lra/blob/main/setup.py#L19-L48), avoiding installation difficulties; 
 - [helpful examples](https://github.com/lucaslingle/e-lra/tree/main?tab=readme-ov-file#usage), improving productivity;
@@ -9,7 +9,7 @@ A slightly opinionated fork of [LRA](https://github.com/google-research/long-ran
 - [defined data path variables](https://github.com/lucaslingle/e-lra/blob/main/lra_benchmarks/image/input_pipeline.py#L21), avoiding crashing scripts;
 - [deterministic shuffling](https://github.com/lucaslingle/e-lra/blob/main/lra_benchmarks/image/input_pipeline.py#L52-59), aiding reproducibility. 
 
-The changes are non-invasive to the original source code, but significantly streamline usage of the LRA task suite. 
+The changes are non-invasive to the original source code, but significantly simplify usage of the LRA task suite. 
 
 ## Installation
 
@@ -38,8 +38,10 @@ To install via pipenv, write ```pipenv install ...```.
 
 ## Prepare Data
 
-To download and prepare all the data, run ```./prep_data.sh```.  
-The script has many printouts due to gunzip, and it takes a while to run, so you may want to run everything in a tmux session or similar. 
+To prepare the data, run:
+```
+source ./prep_data.sh;
+```
 
 ## Examples
 
@@ -55,34 +57,22 @@ python3 lra_benchmarks/listops/train.py \
       --model_dir=/tmp/listops \
       --task_name=basic \
       --data_dir=lra_data/listops/ \
-      --config.checkpoint_freq=100 \
       --config.eval_frequency=100;
 ```
 
 ### Text Classification
-Sweep over max_length=1000,2000,3000,4000, and report the best result.
+Sweep over ```MAX_LENGTH=1000,2000,3000,4000```, and report the best result.
 ```
 python3 lra_benchmarks/text_classification/train.py \
       --config=lra_benchmarks/text_classification/configs/transformer_base.py \
       --model_dir=/tmp/text_classification/ \
       --task_name=imdb_reviews \
       --data_dir=lra_data/text_classification/ \
-      --config.checkpoint_freq=100 \
       --config.eval_frequency=100 \
-      --config.max_length=1000;  
+      --config.max_length='$MAX_LENGTH';
 
-python3 lra_benchmarks/text_classification/train.py \
-      --config=lra_benchmarks/text_classification/configs/transformer_base.py \
-      --model_dir=/tmp/text_classification/ \
-      --task_name=imdb_reviews \
-      --data_dir=lra_data/text_classification/ \
-      --config.checkpoint_freq=100 \
-      --config.eval_frequency=100 \
-      --config.max_length=1000 \
-      --test_only=True;
-
-# Here we clean up model_dir after viewing test metrics,
-# since we need to run from scratch for each max_length setting!
+# Clean up model_dir after viewing test metrics,
+# since we need to run from scratch for each MAX_LENGTH setting!
 rm -rf /tmp/text_classification/;
 ```
 
@@ -93,17 +83,7 @@ python3 lra_benchmarks/retrieval/train.py \
       --model_dir=/tmp/retrieval \
       --task_name=basic \
       --data_dir=lra_data/retrieval/ \
-      --config.checkpoint_freq=100 \
       --config.eval_frequency=100;
-
-python3 lra_benchmarks/retrieval/train.py \
-      --config=lra_benchmarks/retrieval/configs/transformer_base.py \
-      --model_dir=/tmp/retrieval \
-      --task_name=basic \
-      --data_dir=lra_data/retrieval/ \
-      --config.checkpoint_freq=100 \
-      --config.eval_frequency=100 \
-      --test_only=True;
 ```
 
 ### Image Classification
@@ -112,16 +92,7 @@ python3 lra_benchmarks/image/train.py \
       --config=lra_benchmarks/image/configs/cifar10/transformer_base.py \
       --model_dir=/tmp/image/ \
       --task_name=cifar10 \
-      --config.checkpoint_freq=100 \
       --config.eval_frequency=100;
-
-python3 lra_benchmarks/image/train.py \
-      --config=lra_benchmarks/image/configs/cifar10/transformer_base.py \
-      --model_dir=/tmp/image/ \
-      --task_name=cifar10 \
-      --config.checkpoint_freq=100 \
-      --config.eval_frequency=100 \
-      --test_only=True;
 ```
 
 ### Pathfinder
@@ -130,16 +101,7 @@ python3 lra_benchmarks/image/train.py \
       --config=lra_benchmarks/image/configs/pathfinder32/transformer_base.py \
       --model_dir=/tmp/pathfinder/ \
       --task_name=pathfinder32_hard \
-      --config.checkpoint_freq=100 \
       --config.eval_frequency=100;
-
-python3 lra_benchmarks/image/train.py \
-      --config=lra_benchmarks/image/configs/pathfinder32/transformer_base.py \
-      --model_dir=/tmp/pathfinder/ \
-      --task_name=pathfinder32_hard \
-      --config.checkpoint_freq=100 \
-      --config.eval_frequency=100 \
-      --test_only=True;
 ```
 
 ### Path-X
@@ -148,16 +110,7 @@ python3 lra_benchmarks/image/train.py \
       --config=lra_benchmarks/image/configs/pathfinder128/transformer_base.py \
       --model_dir=/tmp/pathx/ \
       --task_name=pathfinder128_hard \
-      --config.checkpoint_freq=100 \
       --config.eval_frequency=100;
-
-python3 lra_benchmarks/image/train.py \
-      --config=lra_benchmarks/image/configs/pathfinder128/transformer_base.py \
-      --model_dir=/tmp/pathx/ \
-      --task_name=pathfinder128_hard \
-      --config.checkpoint_freq=100 \
-      --config.eval_frequency=100 \
-      --test_only=True;
 ```
 
 #### Note

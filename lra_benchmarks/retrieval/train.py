@@ -28,7 +28,6 @@ from flax import jax_utils
 from flax import optim
 from flax.deprecated import nn
 from flax.metrics import tensorboard
-from flax.training import checkpoints
 from flax.training import common_utils
 from jax import random
 from ml_collections import config_flags
@@ -51,9 +50,6 @@ flags.DEFINE_string(
     "vocab_file_path",
     default="/tmp/lra_data/retrieval",
     help="Path for vocab file. Output of `build_vocab`.",
-)
-flags.DEFINE_bool(
-    "test_only", default=False, help="Run the evaluation on the test data."
 )
 
 
@@ -212,11 +208,6 @@ def main(argv):
     )
     del model  # Don't keep a copy of the initial model.
     start_step = 0
-    if config.restore_checkpoints or FLAGS.test_only:
-        # Restore unreplicated optimizer + model state from last checkpoint.
-        optimizer = checkpoints.restore_checkpoint(FLAGS.model_dir, optimizer)
-        # Grab last step.
-        start_step = int(optimizer.state.step)
 
     # Replicate optimizer.
     optimizer = jax_utils.replicate(optimizer)
@@ -261,12 +252,6 @@ def main(argv):
         )
         return eval_summary
 
-    if FLAGS.test_only:
-        with tf.io.gfile.GFile(os.path.join(FLAGS.model_dir, "results.json"), "w") as f:
-            test_summary = run_eval(test_ds)
-            json.dump(jax.tree_map(lambda x: x.tolist(), test_summary), f)
-        return
-
     metrics_all = []
     tick = time.time()
     logging.info("Starting training")
@@ -282,16 +267,6 @@ def main(argv):
         )
         metrics_all.append(metrics)
         logging.info("train in step: %d", step)
-
-        # Save a Checkpoint
-        if (
-            step % config.checkpoint_freq == 0 and step > 0
-        ) or step == num_train_steps - 1:
-            if jax.process_index() == 0 and config.save_checkpoints:
-                # Save unreplicated optimizer + model state.
-                checkpoints.save_checkpoint(
-                    FLAGS.model_dir, jax_utils.unreplicate(optimizer), step
-                )
 
         # Periodic metric handling.
         if step % eval_freq == 0 and step > 0:
@@ -335,20 +310,11 @@ def main(argv):
                     summary_writer.scalar(f"eval_{key}", val, step)
                 summary_writer.flush()
 
-            # Test eval
-            # Eval Metrics
-            logging.info("Testing...")
-            test_summary = run_eval(test_ds, num_eval_steps)
-            logging.info(
-                "test in step: %d, loss: %.4f, acc: %.4f",
-                step,
-                test_summary["loss"],
-                test_summary["accuracy"],
-            )
-            if jax.process_index() == 0:
-                for key, val in test_summary.items():
-                    summary_writer.scalar(f"test_{key}", val, step)
-                summary_writer.flush()
+    logging.info("Starting testing")
+    logging.info("====================")
+    with tf.io.gfile.GFile(os.path.join(FLAGS.model_dir, "results.json"), "w") as f:
+        test_summary = run_eval(test_ds)
+        json.dump(jax.tree_map(lambda x: x.tolist(), test_summary), f)
 
 
 if __name__ == "__main__":

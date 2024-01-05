@@ -29,11 +29,7 @@ def get_config():
     config.weight_decay = 0.0
     config.grad_clip_norm = None
 
-    config.save_checkpoints = True
-    config.restore_checkpoints = True
-    config.checkpoint_freq = (TRAIN_EXAMPLES // config.batch_size) * NUM_EPOCHS // 2
-    config.random_seed = 0
-
+    config.random_seed = 42
     config.learning_rate = 0.001
     config.factors = "constant * linear_warmup * cosine_decay"
     config.warmup = (TRAIN_EXAMPLES // config.batch_size) * 1

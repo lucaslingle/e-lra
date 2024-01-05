@@ -17,3 +17,6 @@ curl https://storage.googleapis.com/long-range-arena/pathfinder_tfds.gz \
     --output pathfinder_tfds.tar.gz
 tar xvf pathfinder_tfds.tar.gz;
 mv TFDS pathfinder_tfds;
+
+cd ..;
+set +e;

@@ -28,7 +28,6 @@ from flax import jax_utils
 from flax import optim
 from flax.deprecated import nn
 from flax.metrics import tensorboard
-from flax.training import checkpoints
 from flax.training import common_utils
 from jax import random
 from ml_collections import config_flags
@@ -44,9 +43,6 @@ config_flags.DEFINE_config_file(
 )
 flags.DEFINE_string("model_dir", default=None, help="Directory to store model data.")
 flags.DEFINE_string("task_name", default="mnist", help="Name of the task")
-flags.DEFINE_bool(
-    "test_only", default=False, help="Run the evaluation on the test data."
-)
 
 
 def create_model(flax_module, model_kwargs, key, input_shape):
@@ -238,17 +234,6 @@ def train_loop(
             optimizer, state, batch, dropout_rng=dropout_rngs
         )
         metrics_all.append(metrics)
-        # Save a Checkpoint
-        if (
-            step % config.checkpoint_freq == 0 and step > 0
-        ) or step == num_train_steps - 1:
-            if jax.process_index() == 0 and config.save_checkpoints:
-                # Save unreplicated optimizer + model state.
-                checkpoints.save_checkpoint(
-                    FLAGS.model_dir,
-                    (jax_utils.unreplicate(optimizer), jax_utils.unreplicate(state)),
-                    step,
-                )
 
         # Periodic metric handling.
         if step % eval_freq == 0 and step > 0:
@@ -397,15 +382,7 @@ def main(argv):
 
     optimizer = create_optimizer(model, learning_rate, config.weight_decay)
     del model  # Don't keep a copy of the initial model.
-
     start_step = 0
-    if config.restore_checkpoints or FLAGS.test_only:
-        # Restore unreplicated optimizer + model state from last checkpoint.
-        optimizer, state = checkpoints.restore_checkpoint(
-            FLAGS.model_dir, (optimizer, state)
-        )
-        # Grab last step.
-        start_step = int(optimizer.state.step)
 
     # Replicate optimizer and state
     optimizer = jax_utils.replicate(optimizer)
@@ -435,22 +412,6 @@ def main(argv):
         axis_name="batch",
     )
 
-    if FLAGS.test_only:
-        logging.info("Starting testing")
-        logging.info("====================")
-        with tf.io.gfile.GFile(os.path.join(FLAGS.model_dir, "results.json"), "w") as f:
-            test_summary = test(
-                optimizer,
-                state,
-                p_eval_step,
-                start_step,
-                test_ds,
-                summary_writer,
-                FLAGS.model_dir,
-            )
-            json.dump(jax.tree_map(lambda x: x.tolist(), test_summary), f)
-        return
-
     logging.info("Starting training")
     logging.info("====================")
     optimizer, state, step = train_loop(
@@ -468,6 +429,21 @@ def main(argv):
         train_iter,
         summary_writer,
     )
+
+    logging.info("Starting testing")
+    logging.info("====================")
+    with tf.io.gfile.GFile(os.path.join(FLAGS.model_dir, "results.json"), "w") as f:
+        test_summary = test(
+            optimizer,
+            state,
+            p_eval_step,
+            start_step,
+            test_ds,
+            summary_writer,
+            FLAGS.model_dir,
+        )
+        json.dump(jax.tree_map(lambda x: x.tolist(), test_summary), f)
+    return
 
 
 if __name__ == "__main__":

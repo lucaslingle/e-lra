@@ -49,9 +49,6 @@ flags.DEFINE_string(
     help="Name of the task used for load training/test data.",
 )
 flags.DEFINE_string("data_dir", default=None, help="Directory containing datasets.")
-flags.DEFINE_bool(
-    "test_only", default=False, help="Run the evaluation on the test data."
-)
 
 
 def create_model(flax_module, model_kwargs, key, input_shape):
@@ -253,6 +250,9 @@ def main(argv):
 
     metrics_all = []
     tick = time.time()
+    logging.info("Starting training")
+    logging.info("====================")
+
     for step, batch in zip(range(start_step, num_train_steps), train_iter):
         batch = common_utils.shard(
             jax.tree_map(lambda x: x._numpy(), batch)
@@ -300,6 +300,8 @@ def main(argv):
                     summary_writer.scalar(f"eval_{key}", val, step)
                 summary_writer.flush()
 
+    logging.info("Starting testing")
+    logging.info("====================")
     with tf.io.gfile.GFile(os.path.join(FLAGS.model_dir, "results.json"), "w") as f:
         test_summary = run_eval(test_ds, optimizer)
         json.dump(jax.tree_map(lambda x: x.tolist(), test_summary), f)
