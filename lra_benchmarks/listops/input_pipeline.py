@@ -42,6 +42,7 @@ def preprocess_dataset(file_path, batch_size):
         field_delim="\t",
         header=True,
         num_epochs=1,
+        shuffle=False,
     )
     ds = ds.unbatch()
     # we rename close brackets to X for this particular task because

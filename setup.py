@@ -7,7 +7,7 @@ from setuptools import setup
 setup(
     name="long-range-arena",
     version="3.0.0",
-    url="https://github.com/lucaslingle/long-range-arena/",
+    url="https://github.com/lucaslingle/e-lra/",
     author="Lucas Dax Lingle",
     author_email="lucasdaxlingle@gmail.com",
     description="Working fork of Long Range Arena.",
