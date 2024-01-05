@@ -230,37 +230,37 @@ def main(argv):
     p_eval_step = jax.pmap(eval_step, axis_name="batch")
     # p_pred_step = jax.pmap(predict_step, axis_name='batch')
 
-    def run_eval(eval_ds, num_eval_steps=-1):
+    def run_eval(eval_ds_, optimizer_, num_eval_steps_=-1):
         eval_metrics = []
-        eval_iter = iter(eval_ds)
-        if num_eval_steps == -1:
+        eval_iter = iter(eval_ds_)
+        if num_eval_steps_ == -1:
             num_iter = itertools.count()
         else:
-            num_iter = range(num_eval_steps)
+            num_iter = range(num_eval_steps_)
         for _, eval_batch in zip(num_iter, eval_iter):
             # pylint: disable=protected-access
             eval_batch = common_utils.shard(
                 jax.tree_map(lambda x: x._numpy(), eval_batch)
             )
             # pylint: enable=protected-access
-            metrics = p_eval_step(optimizer.target, eval_batch)
-            eval_metrics.append(metrics)
+            metrics_ = p_eval_step(optimizer_.target, eval_batch)
+            eval_metrics.append(metrics_)
         eval_metrics = common_utils.get_metrics(eval_metrics)
         eval_metrics_sums = jax.tree_map(jnp.sum, eval_metrics)
         eval_denominator = eval_metrics_sums.pop("denominator")
-        eval_summary = jax.tree_map(
+        eval_summary_ = jax.tree_map(
             lambda x: x / eval_denominator,  # pylint: disable=cell-var-from-loop
             eval_metrics_sums,
         )
         # Calculate (clipped) perplexity after averaging log-perplexities:
-        eval_summary["perplexity"] = jnp.clip(
-            jnp.exp(eval_summary["loss"]), a_max=1.0e4
+        eval_summary_["perplexity"] = jnp.clip(
+            jnp.exp(eval_summary_["loss"]), a_max=1.0e4
         )
-        return eval_summary
+        return eval_summary_
 
     if FLAGS.test_only:
         with tf.io.gfile.GFile(os.path.join(FLAGS.model_dir, "results.json"), "w") as f:
-            test_summary = run_eval(test_ds)
+            test_summary = run_eval(test_ds, optimizer)
             json.dump(jax.tree_map(lambda x: x.tolist(), test_summary), f)
         return
 
@@ -311,7 +311,7 @@ def main(argv):
             metrics_all = []
 
             # Eval Metrics
-            eval_summary = run_eval(eval_ds, num_eval_steps)
+            eval_summary = run_eval(eval_ds, optimizer, num_eval_steps)
             logging.info(
                 "eval in step: %d, loss: %.4f, acc: %.4f",
                 step,
