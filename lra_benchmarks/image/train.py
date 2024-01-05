@@ -442,7 +442,9 @@ def main(argv):
             summary_writer,
             FLAGS.model_dir,
         )
-        json.dump(jax.tree_map(lambda x: x.tolist(), test_summary), f)
+        test_metrics = jax.tree_map(lambda x: x.tolist(), test_summary)
+        logging.info(test_metrics)
+        json.dump(test_metrics, f)
     return
 
 

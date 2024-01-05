@@ -33,7 +33,8 @@ def preprocess_dataset(file_path, batch_size):
         select_columns=sel_cols,
         field_delim=",",
         header=True,
-        shuffle=False,
+        shuffle=True,
+        shuffle_seed=jax.process_index(),
         num_epochs=1,
     )
     ds = ds.unbatch()

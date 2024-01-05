@@ -46,86 +46,84 @@ source ./prep_data.sh;
 To benchmark a vanilla transformer on all tasks, run the following.  
 To benchmark a different xformer, change the ```config``` option. 
 
-At the end of training, test metrics are automatically written to a file ```results.json``` in the specified ```--model_dir```. 
+Test results are printed and written to a file ```results.json``` in the specified ```model_dir```. 
 
 ### ListOps
 ```
 python3 lra_benchmarks/listops/train.py \
-      --config=lra_benchmarks/listops/configs/transformer_base.py \
-      --model_dir=lra_results/listops \
       --task_name=basic \
+      --config=lra_benchmarks/listops/configs/transformer_base.py \
+      --config.eval_frequency=1000 \
       --data_dir=lra_data/listops/ \
-      --config.eval_frequency=100;
+      --model_dir=/tmp/listops/;
 ```
 
 ### Text Classification
 Sweep over ```MAX_LENGTH=1000,2000,3000,4000```, and report the best result.
 ```
 python3 lra_benchmarks/text_classification/train.py \
-      --config=lra_benchmarks/text_classification/configs/transformer_base.py \
-      --model_dir=lra_results/text_classification/ \
       --task_name=imdb_reviews \
+      --config=lra_benchmarks/text_classification/configs/transformer_base.py \
+      --config.eval_frequency=1000 \
+      --config.max_length=$MAX_LENGTH \
       --data_dir=lra_data/text_classification/ \
-      --config.eval_frequency=100 \
-      --config.max_length=$MAX_LENGTH;
+      --model_dir=/tmp/text_classification/;
 
 # Clean up model_dir after viewing test metrics,
 # since we need to run from scratch for each MAX_LENGTH setting!
-rm -rf lra_results/text_classification/;
+rm -rf /tmp/text_classification/;
 ```
 
 ### Retrieval
 ```
 python3 lra_benchmarks/retrieval/train.py \
-      --config=lra_benchmarks/retrieval/configs/transformer_base.py \
-      --model_dir=lra_results/retrieval \
       --task_name=basic \
+      --config=lra_benchmarks/retrieval/configs/transformer_base.py \
+      --config.eval_frequency=1000 \
       --data_dir=lra_data/retrieval/ \
-      --config.eval_frequency=100;
+      --model_dir=/tmp/retrieval/;
 ```
 
 ### Image Classification
 ```
 python3 lra_benchmarks/image/train.py \
-      --config=lra_benchmarks/image/configs/cifar10/transformer_base.py \
-      --model_dir=lra_results/image/ \
       --task_name=cifar10 \
-      --config.eval_frequency=100;
+      --config=lra_benchmarks/image/configs/cifar10/transformer_base.py \
+      --config.eval_frequency=1000 \
+      --model_dir=/tmp/image/;
 ```
 
 ### Pathfinder
 ```
 python3 lra_benchmarks/image/train.py \
-      --config=lra_benchmarks/image/configs/pathfinder32/transformer_base.py \
-      --model_dir=lra_results/pathfinder/ \
       --task_name=pathfinder32_hard \
-      --config.eval_frequency=100;
+      --config=lra_benchmarks/image/configs/pathfinder32/transformer_base.py \
+      --config.eval_frequency=1000 \
+      --model_dir=/tmp/pathfinder/;
 ```
 
 ### Path-X
 ```
 python3 lra_benchmarks/image/train.py \
-      --config=lra_benchmarks/image/configs/pathfinder128/transformer_base.py \
-      --model_dir=lra_results/pathx/ \
       --task_name=pathfinder128_hard \
-      --config.eval_frequency=100;
+      --config=lra_benchmarks/image/configs/pathfinder128/transformer_base.py \
+      --config.eval_frequency=1000 \
+      --model_dir=/tmp/pathx/;
 ```
 
-#### Note
-The default config for vanilla transformer does not work with Path-X on TPU v3 due to OOM and large batch size. No configs were provided for Path-X for any other model.
+#### Notes on Path-X
+The default config for vanilla transformer does not work with Path-X on TPU v3 due to OOM and large batch size. No configs were provided for Path-X for any other model, and in the paper all tasks are marked as failing this task. 
 
 ## Replicating the Paper
 
 Task accuracies for vanilla transformers on TPU v3-8 are provided below.
 
-|       | ListOps | Text     | Retrieval | Image | Path  | 
-|-------|---------|----------|-----------|-------|-------| 
-| Paper | 36.37   | 64.27    | 57.46     | 42.44 | 71.40 | 
-| Ours  | 36.63   |          |           |       |       |
+|       | ListOps | Text                            | Retrieval | Image | Path   | 
+|-------|---------|---------------------------------|-----------|-------|--------| 
+| Paper | 36.37   | 64.27                           | 57.46     | 42.44 | 71.40  | 
+| Ours  | 37.35   | 1k: 63.20, 2k: 62.88, 3k: 62.18 | 59.53     |       | hard: 0.4943 |
 
-To verify the results were deterministic, each script was run five times. 
-Identical results were obtained in all cases. 
 
 ### Acknowledgements
 
-Replication experiments supported with Cloud TPUs from Google's TPU Research Cloud (TRC).
+This project was supported with Cloud TPUs from Google's TPU Research Cloud (TRC).

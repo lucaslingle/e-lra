@@ -40,7 +40,8 @@ def get_tsv_dataset(file_path, batch_size):
         use_quote_delim=False,
         field_delim="\t",
         header=False,
-        shuffle=False,
+        shuffle=True,
+        shuffle_seed=jax.process_index(),
         num_epochs=1,
     )
     ds = ds.unbatch()
