@@ -37,15 +37,15 @@ def get_config():
 
     # model params
     config.model = ml_collections.ConfigDict()
-    config.model.num_layers = 1
-    config.model.num_heads = 2
-    config.model.emb_dim = 32
-    config.model.dropout_rate = 0.1
+    config.model.num_layers = 4
+    config.model.num_heads = 8
+    config.model.emb_dim = 128
+    config.model.dropout_rate = 0.2
 
-    config.model.qkv_dim = config.model.emb_dim // 2
-    config.model.mlp_dim = config.model.qkv_dim * 2
-    config.model.attention_dropout_rate = 0.1
-    config.model.classifier_pool = "MEAN"
+    config.model.qkv_dim = 128
+    config.model.mlp_dim = 128
+    config.model.attention_dropout_rate = 0.2
+    config.model.classifier_pool = "CLS"
     config.model.learn_pos_emb = True
 
     config.trial = 0  # dummy for repeated runs.

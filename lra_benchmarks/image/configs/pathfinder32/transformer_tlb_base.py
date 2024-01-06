@@ -19,12 +19,6 @@ def get_config():
     """Get the default hyperparameter configuration."""
     config = base_pathfinder32_config.get_config()
     config.model_type = "transformer_tlb"
-    config.learning_rate = 0.0005
-    config.model.num_heads = 8
-    config.model.emb_dim = 128
-    config.model.dropout_rate = 0.1
-    config.model.qkv_dim = 64
-    config.model.mlp_dim = 128
     config.model.self_to_cross_ratio_input_updater = 2
     config.model.num_cross_layers_input_updater = 1
     config.model.num_cross_layers_state_updater = 1

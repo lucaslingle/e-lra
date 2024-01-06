@@ -20,14 +20,6 @@ def get_config():
     config = base_pathfinder32_config.get_config()
     config.model_type = "local"
     config.model.block_size = 64
-
-    config.model.num_layers = 2
-    config.model.num_heads = 4
-    config.model.emb_dim = 64
-    config.model.dropout_rate = 0.1
-    config.model.qkv_dim = 32
-    config.model.mlp_dim = 64
-
     return config
 
 

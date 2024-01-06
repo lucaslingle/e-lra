@@ -19,14 +19,6 @@ def get_config():
     """Get the hyperparameter configuration."""
     config = base_pathfinder32_config.get_config()
     config.model_type = "linformer"
-
-    config.model.num_layers = 1
-    config.model.emb_dim = 32
-    config.model.qkv_dim = 16
-    config.model.mlp_dim = 32
-    config.model.num_heads = 2
-    config.model.dropout_rate = 0.2
-
     return config
 
 

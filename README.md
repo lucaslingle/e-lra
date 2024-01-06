@@ -32,7 +32,7 @@ pip3 install '.[tpu]' \
     -f https://storage.googleapis.com/jax-releases/libtpu_releases.html;
 ```
 To install in editable mode, write ```pip3 install -e ...```.  
-To install via pipenv, write ```pipenv install ...```. 
+To install via pipenv, write ```pipenv install ...```.
 
 ## Prepare Data
 
@@ -112,18 +112,17 @@ python3 lra_benchmarks/image/train.py \
 ```
 
 #### Notes on Path-X
-The default config for vanilla transformer does not work with Path-X on TPU v3 due to OOM and large batch size. No configs were provided for Path-X for any other model, and in the paper all tasks are marked as failing this task. 
+The default config for vanilla transformer does not work with Path-X on TPU v3 due to OOM and large batch size. No configs were provided for Path-X for any other model, and in the paper all models are marked as failing this task. 
 
 ## Replicating the Paper
 
 Task accuracies for vanilla transformers on TPU v3-8 are provided below.
 
-|       | ListOps | Text                            | Retrieval | Image | Path   | 
-|-------|---------|---------------------------------|-----------|-------|--------| 
-| Paper | 36.37   | 64.27                           | 57.46     | 42.44 | 71.40  | 
-| Ours  | 37.35   | 1k: 63.20, 2k: 62.88, 3k: 62.18 | 59.53     |       | hard: 0.4943 |
-
+|           | ListOps | Text  | Retrieval | Image | Path                    | 
+|-----------|---------|-------|-----------|-------|-------------------------| 
+| LRA Paper | 36.37   | 64.27 | 57.46     | 42.44 | 71.40                   | 
+| E/LRA     | 37.35   | 63.72 | 59.53     | 42.14 | easy: 83.55 hard: 49.43 |
 
 ### Acknowledgements
 
-This project was supported with Cloud TPUs from Google's TPU Research Cloud (TRC).
+Experiments supported by Cloud TPUs from Google's TPU Research Cloud (TRC).
