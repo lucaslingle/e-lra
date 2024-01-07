@@ -22,7 +22,7 @@ VALID_EXAMPLES = 20000
 def get_config():
     """Get the default hyperparameter configuration."""
     config = ml_collections.ConfigDict()
-    config.batch_size = 32
+    config.batch_size = 64
     config.eval_frequency = TRAIN_EXAMPLES // config.batch_size
     config.num_train_steps = (TRAIN_EXAMPLES // config.batch_size) * NUM_EPOCHS
     config.num_eval_steps = VALID_EXAMPLES // config.batch_size
@@ -39,11 +39,11 @@ def get_config():
     config.model = ml_collections.ConfigDict()
     config.model.num_layers = 4
     config.model.num_heads = 8
-    config.model.emb_dim = 1024
+    config.model.emb_dim = 128
     config.model.dropout_rate = 0.0
 
-    config.model.qkv_dim = 128
-    config.model.mlp_dim = 4096
+    config.model.qkv_dim = 128  # is divided by num_heads internally by flax
+    config.model.mlp_dim = 128
     config.model.attention_dropout_rate = 0.0
     config.model.classifier_pool = "CLS"
     config.model.learn_pos_emb = True

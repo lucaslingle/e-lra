@@ -39,11 +39,11 @@ def get_config():
     config.model = ml_collections.ConfigDict()
     config.model.num_layers = 4
     config.model.num_heads = 8
-    config.model.emb_dim = 1024
+    config.model.emb_dim = 128
     config.model.dropout_rate = 0.0
 
-    config.model.qkv_dim = 128
-    config.model.mlp_dim = 4096
+    config.model.qkv_dim = 128  # is divided by num_heads internally by flax
+    config.model.mlp_dim = 128
     config.model.attention_dropout_rate = 0.0
     config.model.classifier_pool = "CLS"
     config.model.learn_pos_emb = True
