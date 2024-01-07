@@ -11,7 +11,7 @@ A streamlined variant of [LRA](https://github.com/google-research/long-range-are
 
 ## Installation
 
-It is recommended to install the python dependencies using a virtual environment such as venv, pipenv, or miniconda.
+It is recommended to install the dependencies using a virtual environment such as venv or miniconda.
 After the virtual environment is activated, run: 
 ```
 pip3 install --upgrade pip;
@@ -19,20 +19,18 @@ git clone https://github.com/lucaslingle/e-lra.git;
 cd e-lra;
 
 ##### CPU-Only #####
-pip3 install '.[cpu]' \
+pip3 install -e '.[cpu]' \
     -f https://storage.googleapis.com/jax-releases/jax_releases.html;
 
 ##### Nvidia GPU, CUDA 11 #####
-pip3 install '.[cuda11]' \
+pip3 install -e '.[cuda11]' \
     -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html;
 
 ##### Cloud TPU VM #####
-pip3 install '.[tpu]' \
+pip3 install -e '.[tpu]' \
     -f https://storage.googleapis.com/jax-releases/jax_releases.html \
     -f https://storage.googleapis.com/jax-releases/libtpu_releases.html;
 ```
-To install in editable mode, write ```pip3 install -e ...```.  
-To install via pipenv, write ```pipenv install ...```.
 
 ## Prepare Data
 
