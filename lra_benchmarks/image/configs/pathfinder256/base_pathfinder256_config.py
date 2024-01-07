@@ -43,7 +43,7 @@ def get_config():
     config.model.dropout_rate = 0.0
 
     config.model.qkv_dim = 128
-    config.model.mlp_dim = 128
+    config.model.mlp_dim = 4096
     config.model.attention_dropout_rate = 0.0
     config.model.classifier_pool = "CLS"
     config.model.learn_pos_emb = True
