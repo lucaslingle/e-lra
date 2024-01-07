@@ -21,7 +21,7 @@ cd e-lra;
 ##### CPU-Only #####
 pip3 install '.[cpu]' \
     -f https://storage.googleapis.com/jax-releases/jax_releases.html;
-    
+
 ##### Nvidia GPU, CUDA 11 #####
 pip3 install '.[cuda11]' \
     -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html;
@@ -118,10 +118,13 @@ The default config for vanilla transformer does not work with Path-X on TPU v3 d
 
 Task accuracies for vanilla transformers on TPU v3-8 are provided below.
 
-|           | ListOps | Text  | Retrieval | Image | Path                    | 
-|-----------|---------|-------|-----------|-------|-------------------------| 
-| LRA Paper | 36.37   | 64.27 | 57.46     | 42.44 | 71.40                   | 
-| E/LRA     | 37.35   | 63.72 | 59.53     | 42.14 | easy: 83.55 hard: 49.43 |
+|           | ListOps | Text   | Retrieval | Image | Pathfinder                                                                           | 
+|-----------|---------|--------|-----------|-------|--------------------------------------------------------------------------------------| 
+| LRA Paper | 36.37   | 64.27  | 57.46     | 42.44 | 71.40                                                                                | 
+| E/LRA     | 37.35   | 63.72  | 59.53     | 42.14 | [og repo] easy: 83.55 inter: 57.05 hard: 49.43; [paper hparams, emb=128] hard: 50.57 |
+
+#### Notes on Pathfinder
+To match the performance reported in the paper on the Pathfinder task, we modified the hyperparameters to match the settings reported in the paper (Appendix A.3). The official repo changed the hyperparameters, for unknown reasons.  
 
 ### Acknowledgements
 

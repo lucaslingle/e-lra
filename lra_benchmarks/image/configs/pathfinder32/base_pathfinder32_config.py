@@ -39,7 +39,7 @@ def get_config():
     config.model = ml_collections.ConfigDict()
     config.model.num_layers = 4
     config.model.num_heads = 8
-    config.model.emb_dim = 128
+    config.model.emb_dim = 1024
     config.model.dropout_rate = 0.2
 
     config.model.qkv_dim = 128

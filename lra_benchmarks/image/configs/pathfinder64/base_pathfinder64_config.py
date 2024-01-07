@@ -30,7 +30,7 @@ def get_config():
     config.grad_clip_norm = None
 
     config.random_seed = 42
-    config.learning_rate = 0.001
+    config.learning_rate = 0.01
     config.factors = "constant * linear_warmup * cosine_decay"
     config.warmup = (TRAIN_EXAMPLES // config.batch_size) * 1
     config.steps_per_cycle = (TRAIN_EXAMPLES // config.batch_size) * NUM_EPOCHS
@@ -39,7 +39,7 @@ def get_config():
     config.model = ml_collections.ConfigDict()
     config.model.num_layers = 4
     config.model.num_heads = 8
-    config.model.emb_dim = 128
+    config.model.emb_dim = 1024
     config.model.dropout_rate = 0.2
 
     config.model.qkv_dim = 128
