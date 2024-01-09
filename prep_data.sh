@@ -13,10 +13,10 @@ mv lra_release/lra_release/pathfinder* pathfinder;
 rm -rf lra_release;
 
 # based on https://github.com/google-research/long-range-arena/pull/47/files
-curl https://storage.googleapis.com/long-range-arena/pathfinder_tfds.gz \
-    --output pathfinder_tfds.tar.gz
-tar xvf pathfinder_tfds.tar.gz;
-mv TFDS pathfinder_tfds;
+#curl https://storage.googleapis.com/long-range-arena/pathfinder_tfds.gz \
+#    --output pathfinder_tfds.tar.gz
+#tar xvf pathfinder_tfds.tar.gz;
+#mv TFDS pathfinder_tfds;
 
 cd ..;
 set +e;
