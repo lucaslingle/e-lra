@@ -94,35 +94,11 @@ python3 lra_benchmarks/image/train.py \
 ### Pathfinder
 ```
 python3 lra_benchmarks/image/train.py \
-      --task_name=pathfinder32_hard \
+      --task_name=pathfinder32_easy \
       --config=lra_benchmarks/image/configs/pathfinder32/transformer_base.py \
       --config.eval_frequency=1000 \
       --model_dir=/tmp/pathfinder/;
 ```
-
-### Path-X
-```
-python3 lra_benchmarks/image/train.py \
-      --task_name=pathfinder128_hard \
-      --config=lra_benchmarks/image/configs/pathfinder128/transformer_base.py \
-      --config.eval_frequency=1000 \
-      --model_dir=/tmp/pathx/;
-```
-
-#### Notes on Path-X
-The default config for vanilla transformer does not work with Path-X on TPU v3 due to OOM and large batch size. No configs were provided for Path-X for any other model, and in the paper all models are marked as failing this task. 
-
-## Replicating the Paper
-
-Task accuracies for vanilla transformers on TPU v3-8 are provided below.
-
-|           | ListOps | Text   | Retrieval | Image | Pathfinder                                                                           | 
-|-----------|---------|--------|-----------|-------|--------------------------------------------------------------------------------------| 
-| LRA Paper | 36.37   | 64.27  | 57.46     | 42.44 | 71.40                                                                                | 
-| E/LRA     | 37.35   | 63.72  | 59.53     | 42.14 | [og repo] easy: 83.55 inter: 57.05 hard: 49.43; [paper hparams, emb=128] hard: 50.57 |
-
-#### Notes on Pathfinder
-To match the performance reported in the paper on the Pathfinder task, we modified the hyperparameters to match the settings reported in the paper (Appendix A.3). The official repo changed the hyperparameters, for unknown reasons.  
 
 ### Acknowledgements
 

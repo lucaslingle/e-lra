@@ -33,23 +33,23 @@ def get_config():
     config.grad_clip_norm = None
 
     config.random_seed = 42
-    config.learning_rate = 0.01
+    config.learning_rate = 0.001
     config.factors = "constant * linear_warmup * cosine_decay"
     config.warmup = (TRAIN_EXAMPLES // config.batch_size) * 1
     config.steps_per_cycle = (TRAIN_EXAMPLES // config.batch_size) * NUM_EPOCHS
 
     # model params
     config.model = ml_collections.ConfigDict()
-    config.model.num_layers = 4
-    config.model.num_heads = 8
-    config.model.emb_dim = 128
-    config.model.dropout_rate = 0.2
+    config.model.num_layers = 1
+    config.model.num_heads = 2
+    config.model.emb_dim = 32
+    config.model.dropout_rate = 0.1
 
-    config.model.qkv_dim = 128
-    config.model.mlp_dim = 128
+    config.model.qkv_dim = config.model.emb_dim // 2
+    config.model.mlp_dim = config.model.qkv_dim * 2
     config.model.attention_dropout_rate = 0.1
-    config.model.classifier_pool = "CLS"
-    config.model.learn_pos_emb = True
+    config.model.classifier_pool = "MEAN"
+    config.model.learn_pos_emb = False
 
     config.trial = 0  # dummy for repeated runs.
     return config
