@@ -29,7 +29,6 @@ from flax import jax_utils
 from flax import optim
 from flax.deprecated import nn
 from flax.metrics import tensorboard
-from flax.training import checkpoints
 from flax.training import common_utils
 from jax import random
 from ml_collections import config_flags
@@ -50,9 +49,6 @@ flags.DEFINE_string(
     help="Name of the task used for load training/test data.",
 )
 flags.DEFINE_string("data_dir", default=None, help="Directory containing datasets.")
-flags.DEFINE_bool(
-    "test_only", default=False, help="Run the evaluation on the test data."
-)
 
 
 def create_model(flax_module, model_kwargs, key, input_shape):
@@ -207,15 +203,9 @@ def main(argv):
     model = train_utils.get_model(
         model_type, create_model, model_kwargs, init_rng, input_shape
     )
-
     optimizer = create_optimizer(model, learning_rate)
     del model  # Don't keep a copy of the initial model.
     start_step = 0
-    if config.restore_checkpoints or FLAGS.test_only:
-        # Restore unreplicated optimizer + model state from last checkpoint.
-        optimizer = checkpoints.restore_checkpoint(FLAGS.model_dir, optimizer)
-        # Grab last step.
-        start_step = int(optimizer.state.step)
 
     # Replicate optimizer.
     optimizer = jax_utils.replicate(optimizer)
@@ -230,42 +220,39 @@ def main(argv):
     p_eval_step = jax.pmap(eval_step, axis_name="batch")
     # p_pred_step = jax.pmap(predict_step, axis_name='batch')
 
-    def run_eval(eval_ds, num_eval_steps=-1):
+    def run_eval(eval_ds_, optimizer_, num_eval_steps_=-1):
         eval_metrics = []
-        eval_iter = iter(eval_ds)
-        if num_eval_steps == -1:
+        eval_iter = iter(eval_ds_)
+        if num_eval_steps_ == -1:
             num_iter = itertools.count()
         else:
-            num_iter = range(num_eval_steps)
+            num_iter = range(num_eval_steps_)
         for _, eval_batch in zip(num_iter, eval_iter):
             # pylint: disable=protected-access
             eval_batch = common_utils.shard(
                 jax.tree_map(lambda x: x._numpy(), eval_batch)
             )
             # pylint: enable=protected-access
-            metrics = p_eval_step(optimizer.target, eval_batch)
-            eval_metrics.append(metrics)
+            metrics_ = p_eval_step(optimizer_.target, eval_batch)
+            eval_metrics.append(metrics_)
         eval_metrics = common_utils.get_metrics(eval_metrics)
         eval_metrics_sums = jax.tree_map(jnp.sum, eval_metrics)
         eval_denominator = eval_metrics_sums.pop("denominator")
-        eval_summary = jax.tree_map(
+        eval_summary_ = jax.tree_map(
             lambda x: x / eval_denominator,  # pylint: disable=cell-var-from-loop
             eval_metrics_sums,
         )
         # Calculate (clipped) perplexity after averaging log-perplexities:
-        eval_summary["perplexity"] = jnp.clip(
-            jnp.exp(eval_summary["loss"]), a_max=1.0e4
+        eval_summary_["perplexity"] = jnp.clip(
+            jnp.exp(eval_summary_["loss"]), a_max=1.0e4
         )
-        return eval_summary
-
-    if FLAGS.test_only:
-        with tf.io.gfile.GFile(os.path.join(FLAGS.model_dir, "results.json"), "w") as f:
-            test_summary = run_eval(test_ds)
-            json.dump(jax.tree_map(lambda x: x.tolist(), test_summary), f)
-        return
+        return eval_summary_
 
     metrics_all = []
     tick = time.time()
+    logging.info("Starting training")
+    logging.info("====================")
+
     for step, batch in zip(range(start_step, num_train_steps), train_iter):
         batch = common_utils.shard(
             jax.tree_map(lambda x: x._numpy(), batch)
@@ -275,16 +262,6 @@ def main(argv):
         )
         metrics_all.append(metrics)
         logging.info("train in step: %d", step)
-
-        # Save a Checkpoint
-        if (
-            step % config.checkpoint_freq == 0 and step > 0
-        ) or step == num_train_steps - 1:
-            if jax.process_index() == 0 and config.save_checkpoints:
-                # Save unreplicated optimizer + model state.
-                checkpoints.save_checkpoint(
-                    FLAGS.model_dir, jax_utils.unreplicate(optimizer), step
-                )
 
         # Periodic metric handling.
         if step % eval_freq == 0 and step > 0:
@@ -311,7 +288,7 @@ def main(argv):
             metrics_all = []
 
             # Eval Metrics
-            eval_summary = run_eval(eval_ds, num_eval_steps)
+            eval_summary = run_eval(eval_ds, optimizer, num_eval_steps)
             logging.info(
                 "eval in step: %d, loss: %.4f, acc: %.4f",
                 step,
@@ -322,6 +299,14 @@ def main(argv):
                 for key, val in eval_summary.items():
                     summary_writer.scalar(f"eval_{key}", val, step)
                 summary_writer.flush()
+
+    logging.info("Starting testing")
+    logging.info("====================")
+    with tf.io.gfile.GFile(os.path.join(FLAGS.model_dir, "results.json"), "w+") as f:
+        test_summary = run_eval(test_ds, optimizer)
+        test_metrics = jax.tree_map(lambda x: x.tolist(), test_summary)
+        logging.info(test_metrics)
+        json.dump(test_metrics, f)
 
 
 if __name__ == "__main__":

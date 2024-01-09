@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Input pipeline for the imdb dataset."""
+import jax
 import numpy as np
 import tensorflow.compat.v1 as tf
 import tensorflow_datasets as tfds
@@ -32,7 +33,8 @@ def preprocess_dataset(file_path, batch_size):
         select_columns=sel_cols,
         field_delim=",",
         header=True,
-        shuffle=False,
+        shuffle=True,
+        shuffle_seed=jax.process_index(),
         num_epochs=1,
     )
     ds = ds.unbatch()
@@ -175,10 +177,17 @@ def get_tc_datasets(
     val_dataset = val_dataset.map(tokenize, num_parallel_calls=AUTOTUNE)
     test_dataset = test_dataset.map(tokenize, num_parallel_calls=AUTOTUNE)
 
-    max_shape = {"inputs": [max_length], "targets": []}
+    options = tf.data.Options()
+    options.deterministic = True
+    train_dataset = train_dataset.with_options(options)
     train_dataset = train_dataset.shuffle(
-        buffer_size=256, reshuffle_each_iteration=True
-    ).padded_batch(batch_size, padded_shapes=max_shape)
+        buffer_size=256,
+        reshuffle_each_iteration=True,
+        seed=jax.process_index(),
+    )
+
+    max_shape = {"inputs": [max_length], "targets": []}
+    train_dataset = train_dataset.padded_batch(batch_size, padded_shapes=max_shape)
     val_dataset = val_dataset.padded_batch(batch_size, padded_shapes=max_shape)
     test_dataset = test_dataset.padded_batch(batch_size, padded_shapes=max_shape)
 

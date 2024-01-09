@@ -19,3 +19,4 @@ tar xvf pathfinder_tfds.tar.gz;
 mv TFDS pathfinder_tfds;
 
 cd ..;
+set +e;

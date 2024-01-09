@@ -2,10 +2,13 @@
 # by Lucas Dax Lingle.
 #
 # Copyright 2021 Google LLC
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
+#
 #     https://www.apache.org/licenses/LICENSE-2.0
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,11 +32,7 @@ def get_config():
     config.weight_decay = 0.0
     config.grad_clip_norm = None
 
-    config.save_checkpoints = True
-    config.restore_checkpoints = True
-    config.checkpoint_freq = (TRAIN_EXAMPLES // config.batch_size) * NUM_EPOCHS // 2
-    config.random_seed = 0
-
+    config.random_seed = 42
     config.learning_rate = 0.001
     config.factors = "constant * linear_warmup * cosine_decay"
     config.warmup = (TRAIN_EXAMPLES // config.batch_size) * 1
